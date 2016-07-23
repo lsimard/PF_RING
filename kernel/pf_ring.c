@@ -3627,9 +3627,22 @@ int check_wildcard_rules(struct sk_buff *skb,
 			 int displ, u_int *last_matched_plugin)
 {
   struct list_head *ptr, *tmp_ptr;
-
+  u16 vlan_tci = 0;
   if(unlikely(enable_debug))
     printk("[PF_RING] Entered check_wildcard_rules()\n");
+
+  if((vlan_get_tag(skb, &vlan_tci) == 0) /* The packet is tagged... */
+     && (hdr->extended_hdr.parsed_pkt.offset.vlan_offset == 0)) {
+
+       if(unlikely(enable_debug))
+         printk("[PF_RING] VLAN ID stripped. Fixing it with ID[%u]\n", vlan_tci);
+
+       /* VLAN ID has been stripped
+        * Here we care only for the vlan_id, not the offset.
+        * copy_data_to_ring will take care of it
+        */
+       hdr->extended_hdr.parsed_pkt.vlan_id = vlan_tci;
+  }
 
   read_lock(&pfr->ring_rules_lock);
 
