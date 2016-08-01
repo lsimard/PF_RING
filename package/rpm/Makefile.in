@@ -8,31 +8,30 @@ PACKAGE_VERSION=@VERS@
 PACKAGE=$(APPL)-$(PACKAGE_VERSION)-$(REVISION).$(PLATFORM).rpm
 PACKAGE_PATH=$(HOME)/rpmbuild/RPMS/$(PLATFORM)/$(PACKAGE)
 ROOT=$(shell pwd)/../../
+SHELL=/bin/bash
 
 package: all cleanup-rpm build-rpm dkms
 
 all:
-	pushd .
 	cd ../..;make all; 
-	cd userland/snort/pfring-daq-module
-	autoreconf -ivf
+	cd ../../userland/snort/pfring-daq-module; \
+	autoreconf -ivf; \
 	./configure --with-libdaq-includes=@DAQ_INCLUDES@ \
 	            --with-libsfbpf-includes=@SFBPF_INCLUDES@ \
 		    --with-libsfbpf-libraries=@SFBPF_LIBS@ \
 		    --with-libpfring-includes=../../../userland/lib \
 		    --with-libpfring-libraries=../../../userland/lib  \
-	            --with-pfring-kernel-includes=../../../kernel/linux
+	            --with-pfring-kernel-includes=../../../kernel/linux; \
 	make
-	cd ../pfring-daq-module-zc
-	autoreconf -ivf
+	cd ../../userland/snort/pfring-daq-module-zc; \
+	autoreconf -ivf; \
 	./configure --with-libdaq-includes=@DAQ_INCLUDES@ \
 	            --with-libsfbpf-includes=@SFBPF_INCLUDES@ \
 		    --with-libsfbpf-libraries=@SFBPF_LIBS@ \
 		    --with-libpfring-includes=../../../userland/lib \
 		    --with-libpfring-libraries=../../../userland/lib  \
-	            --with-pfring-kernel-includes=../../../kernel/linux
+	            --with-pfring-kernel-includes=../../../kernel/linux; \
 	make
-	popd
 dkms:
 	cd ../../kernel; ./configure; make dkms-rpm
 	cp /var/lib/dkms/pfring/@VERS@/rpm/pfring-dkms-@VERS@-@REVISION@.noarch.rpm .
