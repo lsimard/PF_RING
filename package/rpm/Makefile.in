@@ -7,14 +7,32 @@ REVISION=@REVISION@
 PACKAGE_VERSION=@VERS@
 PACKAGE=$(APPL)-$(PACKAGE_VERSION)-$(REVISION).$(PLATFORM).rpm
 PACKAGE_PATH=$(HOME)/rpmbuild/RPMS/$(PLATFORM)/$(PACKAGE)
-
+ROOT=$(shell pwd)/../../
 
 package: all cleanup-rpm build-rpm dkms
 
 all:
-	cd ../..;make all; make snort
-
-
+	pushd .
+	cd ../..;make all; 
+	cd userland/snort/pfring-daq-module
+	autoreconf -ivf
+	./configure --with-libdaq-includes=@DAQ_INCLUDES@ \
+	            --with-libsfbpf-includes=@SFBPF_INCLUDES@ \
+		    --with-libsfbpf-libraries=@SFBPF_LIBS@ \
+		    --with-libpfring-includes=../../../userland/lib \
+		    --with-libpfring-libraries=../../../userland/lib  \
+	            --with-pfring-kernel-includes=../../../kernel/linux
+	make
+	cd ../pfring-daq-module-zc
+	autoreconf -ivf
+	./configure --with-libdaq-includes=@DAQ_INCLUDES@ \
+	            --with-libsfbpf-includes=@SFBPF_INCLUDES@ \
+		    --with-libsfbpf-libraries=@SFBPF_LIBS@ \
+		    --with-libpfring-includes=../../../userland/lib \
+		    --with-libpfring-libraries=../../../userland/lib  \
+	            --with-pfring-kernel-includes=../../../kernel/linux
+	make
+	popd
 dkms:
 	cd ../../kernel; ./configure; make dkms-rpm
 	cp /var/lib/dkms/pfring/@VERS@/rpm/pfring-dkms-@VERS@-@REVISION@.noarch.rpm .
@@ -27,7 +45,7 @@ build-rpm:
 # Do NOT build package as root (http://wiki.centos.org/HowTos/SetupRpmBuildEnvironment)
 #	mkdir -p $(HOME)/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 #	echo '%_topdir %(echo $HOME)/rpmbuild' > ~/.rpmmacros
-	@rpmbuild -bb ./$(APPL).spec --define "pfring_version $(PACKAGE_VERSION)" --define "buildrev $(REVISION)" --define "nozc 0"
+	@rpmbuild -bb ./$(APPL).spec --define "pfring_path $(ROOT)" --define "pfring_version $(PACKAGE_VERSION)" --define "buildrev $(REVISION)" --define "nozc 0"
 	@./rpm-sign.exp $(HOME)/rpmbuild/RPMS/$(PLATFORM)/$(PACKAGE)
 	@echo ""
 	@echo "Package contents:"
