@@ -8352,8 +8352,8 @@ static const struct net_device_ops e1000e_netdev_ops = {
 	.ndo_poll_controller	= e1000_netpoll,
 #endif
 #ifdef HAVE_NDO_SET_FEATURES
-	.ndo_set_features = e1000_set_features,
-	.ndo_fix_features = e1000_fix_features,
+//	.ndo_set_features = e1000_set_features,
+//	.ndo_fix_features = e1000_fix_features,
 #endif /* HAVE_NDO_SET_FEATURES */
 };
 
@@ -8580,12 +8580,12 @@ static int e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 #ifdef HAVE_NDO_SET_FEATURES
 	/* Set user-changeable features (subset of all device features) */
-	netdev->hw_features = netdev->features;
-	netdev->hw_features |= NETIF_F_RXFCS;
+	//netdev->hw_features = netdev->features;
+	//netdev->hw_features |= NETIF_F_RXFCS;
 #ifdef IFF_SUPP_NOFCS
 	netdev->priv_flags |= IFF_SUPP_NOFCS;
 #endif /* IFF_SUPP_NOFCS */
-	netdev->hw_features |= NETIF_F_RXALL;
+	//netdev->hw_features |= NETIF_F_RXALL;
 #else /* HAVE_NDO_SET_FEATURES */
 #ifdef NETIF_F_GRO
 	/* only needed for <2.6.39; otherwise set in register_netdevice() */
