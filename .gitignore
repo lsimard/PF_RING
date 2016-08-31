@@ -1,4 +1,5 @@
 ##### Packages
+package/rpm/configure
 *.tgz
 
 ##### Compiled source
