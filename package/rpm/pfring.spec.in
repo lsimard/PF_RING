@@ -19,100 +19,104 @@ Provides: daq_pfring_zc.so, daq_pfring.so, libpfring.so
 PF_RING kernel module and drivers for high-speed RX/TX package processing
 GIT info: @GIT_BRANCH@:@GIT_HASH@
 
+%package devel
+Summary: PF_RING kernel developement library and include files
+Group: Development/Libraries
+Requires: %{name} = %{version}-%{release}
+
+%description devel
+PF_RING kernel module and drivers include files for high-speed RX/TX package processing
+
 %install
 PATH=/usr/bin:/bin:/usr/sbin:/sbin
-if [ -d $RPM_BUILD_ROOT ]; then
-	\rm -rf $RPM_BUILD_ROOT
+if [ -d %{buildroot} ]; then
+        \rm -rf %{buildroot}
 fi
 
-mkdir -p $RPM_BUILD_ROOT/usr/local/pfring
-mkdir -p $RPM_BUILD_ROOT/usr/local/pfring/kernel
-mkdir -p $RPM_BUILD_ROOT/usr/local/include/linux
-mkdir -p $RPM_BUILD_ROOT/usr/local/lib
-mkdir -p $RPM_BUILD_ROOT/usr/local/bin
-mkdir -p $RPM_BUILD_ROOT/etc/init.d
-mkdir -p $RPM_BUILD_ROOT/etc/ld.so.conf.d
-mkdir -p $RPM_BUILD_ROOT/etc/init
+mkdir -p %{buildroot}%{_defaultdocdir}/%{name}-%{version}
+mkdir -p %{buildroot}%{_includedir}/linux
+mkdir -p %{buildroot}%{_sysconfdir}/init.d
+mkdir -p %{buildroot}%{_sysconfdir}/init
+mkdir -p %{buildroot}%{_bindir}
+mkdir -p %{buildroot}%{_libdir}
+mkdir -p %{buildroot}%{_libdir}/daq
+
 # Kernel module
-#cp $HOME/PF_RING/kernel/pf_ring.ko $RPM_BUILD_ROOT/usr/local/pfring/kernel
-cp $HOME/PF_RING/kernel/linux/pf_ring.h $RPM_BUILD_ROOT/usr/local/include/linux/
+#cp %{pfring_path}/kernel/pf_ring.ko %{buildroot}%{_prefix}/pfring/kernel
+cp %{pfring_path}/kernel/linux/pf_ring.h %{buildroot}%{_includedir}/linux/
 # Userland
-cp $HOME/PF_RING/README.FIRST                  $RPM_BUILD_ROOT/usr/local/pfring/
-cp $HOME/PF_RING/userland/snort/pfring-daq-module/README.1st $RPM_BUILD_ROOT/usr/local/pfring/README-DAQ.1st
-cp $HOME/PF_RING/userland/lib/libpfring.a      $RPM_BUILD_ROOT/usr/local/lib
-cp $HOME/PF_RING/userland/lib/libpfring.so     $RPM_BUILD_ROOT/usr/local/lib
-cp $HOME/PF_RING/userland/lib/pfring.h         $RPM_BUILD_ROOT/usr/local/include
-cp $HOME/PF_RING/userland/lib/pfring_zc.h      $RPM_BUILD_ROOT/usr/local/include
-cp $HOME/PF_RING/userland/fast_bpf/fast_bpf.h  $RPM_BUILD_ROOT/usr/local/include
-cp $HOME/PF_RING/userland/libpcap/libpcap.a    $RPM_BUILD_ROOT/usr/local/lib
-cp $HOME/PF_RING/userland/libpcap/libpcap.so.1.7.4	$RPM_BUILD_ROOT/usr/local/lib
-#cp $HOME/PF_RING/userland/tcpdump/tcpdump      $RPM_BUILD_ROOT/usr/local/bin
-cp $HOME/PF_RING/userland/examples/pfcount     $RPM_BUILD_ROOT/usr/local/bin
-cp $HOME/PF_RING/userland/examples/pfsend      $RPM_BUILD_ROOT/usr/local/bin
-cp $HOME/PF_RING/package/etc/init.d/pf_ring    $RPM_BUILD_ROOT/etc/init.d
-cp $HOME/PF_RING/package/etc/init.d/cluster    $RPM_BUILD_ROOT/etc/init.d
-cp $HOME/PF_RING/package/etc/init/pf_ring.conf $RPM_BUILD_ROOT/etc/init
-cp $HOME/PF_RING/package/etc/ld.so.conf.d/pf_ring.conf $RPM_BUILD_ROOT/etc/ld.so.conf.d/
+cp %{pfring_path}/README.FIRST                  %{buildroot}%{_defaultdocdir}/%{name}-%{version}
+cp %{pfring_path}/userland/snort/pfring-daq-module/README.1st %{buildroot}%{_defaultdocdir}/%{name}-%{version}/README-DAQ.1st
+cp %{pfring_path}/userland/lib/libpfring.a      %{buildroot}%{_libdir}
+cp %{pfring_path}/userland/lib/libpfring.so     %{buildroot}%{_libdir}
+
+# Don't think it is a good idea to deploy libpcap within the same pfring package
+#cp %{pfring_path}/userland/libpcap/libpcap.a    %{buildroot}%{_libdir}
+#cp %{pfring_path}/userland/libpcap/libpcap.so.1.7.4    %{buildroot}%{_libdir}
+
+cp %{pfring_path}/userland/lib/pfring.h         %{buildroot}%{_includedir}
+cp %{pfring_path}/userland/lib/pfring_zc.h      %{buildroot}%{_includedir}
+
+#cp %{pfring_path}/userland/tcpdump/tcpdump      %{buildroot}%{_prefix}/bin
+cp %{pfring_path}/userland/examples/pfcount     %{buildroot}%{_bindir}
+cp %{pfring_path}/userland/examples/pfdump      %{buildroot}%{_bindir}
+cp %{pfring_path}/userland/examples/pfsend      %{buildroot}%{_bindir}
+
+cp %{pfring_path}/package/etc/init.d/pf_ring    %{buildroot}%{_sysconfdir}/init.d
+cp %{pfring_path}/package/etc/init.d/cluster    %{buildroot}%{_sysconfdir}/init.d
+cp %{pfring_path}/package/etc/init/pf_ring.conf %{buildroot}%{_sysconfdir}/init
 @ACCOLADE_LIB_COPY@
 @NAPATECH_LIB_COPY@
 @MYRICOM_LIB_COPY@
 # DAQ
-mkdir -p $RPM_BUILD_ROOT/usr/local/lib/daq
-cp $HOME/PF_RING/userland/snort/pfring-daq-module/daq_pfring.la $RPM_BUILD_ROOT/usr/local/lib/daq
-cp $HOME/PF_RING/userland/snort/pfring-daq-module/.libs/daq_pfring.so $RPM_BUILD_ROOT/usr/local/lib/daq
-cp $HOME/PF_RING/userland/snort/pfring-daq-module-zc/daq_pfring_zc.la $RPM_BUILD_ROOT/usr/local/lib/daq
-cp $HOME/PF_RING/userland/snort/pfring-daq-module-zc/.libs/daq_pfring_zc.so $RPM_BUILD_ROOT/usr/local/lib/daq
-cp -a $HOME/daq-2.?.?/sfbpf/.libs/libsfbpf.so.0 $HOME/daq-2.?.?/sfbpf/.libs/libsfbpf.so.0.0.1 $RPM_BUILD_ROOT/usr/local/lib
+cp %{pfring_path}/userland/snort/pfring-daq-module/daq_pfring.la %{buildroot}%{_libdir}/daq
+cp %{pfring_path}/userland/snort/pfring-daq-module/.libs/daq_pfring.so %{buildroot}%{_libdir}/daq
+cp %{pfring_path}/userland/snort/pfring-daq-module-zc/daq_pfring_zc.la %{buildroot}%{_libdir}/daq
+cp %{pfring_path}/userland/snort/pfring-daq-module-zc/.libs/daq_pfring_zc.so %{buildroot}%{_libdir}/daq
+#cp -a $HOME/daq-2.?.?/sfbpf/.libs/libsfbpf.so.0 $HOME/daq-2.?.?/sfbpf/.libs/libsfbpf.so.0.0.1 %{buildroot}%{_prefix}/lib
 %if %nozc == 0
-cp $HOME/PF_RING/userland/examples_zc/zbalance_ipc $RPM_BUILD_ROOT/usr/local/bin
-cp $HOME/PF_RING/userland/examples_zc/zsend $RPM_BUILD_ROOT/usr/local/bin
-cp $HOME/PF_RING/userland/examples_zc/zcount $RPM_BUILD_ROOT/usr/local/bin
-cp $HOME/PF_RING/userland/examples_zc/zcount_ipc $RPM_BUILD_ROOT/usr/local/bin
+cp %{pfring_path}/userland/examples_zc/zbalance_ipc %{buildroot}%{_bindir}
+cp %{pfring_path}/userland/examples_zc/zsend %{buildroot}%{_bindir}
+cp %{pfring_path}/userland/examples_zc/zcount %{buildroot}%{_bindir}
+cp %{pfring_path}/userland/examples_zc/zcount_ipc %{buildroot}%{_bindir}
 %endif
 
 
 # Clean out our build directory
 %clean
-rm -fr $RPM_BUILD_ROOT
+rm -fr %{buildroot}
 
 %files
-/usr/local/include/linux/pf_ring.h
-/usr/local/lib/libpfring.a
-/usr/local/lib/libpfring.so
-/usr/local/lib/libpcap.a
-/usr/local/lib/libpcap.so.1.7.4
-/usr/local/include/pfring.h
-/usr/local/include/pfring_zc.h
-/usr/local/include/fast_bpf.h
-/usr/local/lib/daq/daq_pfring.la
-/usr/local/lib/daq/daq_pfring.so
-/usr/local/lib/daq/daq_pfring_zc.la
-/usr/local/lib/daq/daq_pfring_zc.so
-/usr/local/lib/libsfbpf.so.0
-/usr/local/lib/libsfbpf.so.0.0.1
+# Set the default attributes of all of the files specified to have an
+# owner and group of root and to inherit the permissions of the file
+# itself.
+%defattr(-,root,root,-)
+%{_libdir}/*.so
+%{_libdir}/daq/*.so
+%{_bindir}/pfcount
+%{_bindir}/pfdump
+%{_bindir}/pfsend
 %if %nozc == 0
-/usr/local/bin/zbalance_ipc
-/usr/local/bin/zsend
-/usr/local/bin/zcount
-/usr/local/bin/zcount_ipc
+%{_bindir}/zbalance_ipc
+%{_bindir}/zsend
+%{_bindir}/zcount
+%{_bindir}/zcount_ipc
 %endif
-#/usr/local/bin/tcpdump
-/usr/local/bin/pfcount
-/usr/local/bin/pfsend
-/usr/local/pfring/README.FIRST
-/usr/local/pfring/README-DAQ.1st
-/etc/init.d/pf_ring
-/etc/init.d/cluster
-/etc/init/pf_ring.conf
-/etc/ld.so.conf.d/pf_ring.conf
+%{_sysconfdir}/init/pf_ring.conf
+%{_sysconfdir}/init.d/pf_ring
+%{_sysconfdir}/init.d/cluster
+
 @ACCOLADE_LIBS@
 @NAPATECH_LIBS@
 @MYRICOM_LIBS@
 
-# Set the default attributes of all of the files specified to have an
-# owner and group of root and to inherit the permissions of the file
-# itself.
-%defattr(-, root, root)
+%files devel
+%{_includedir}/*.h
+%{_includedir}/linux/*.h
+%{_libdir}/*.a
+%{_libdir}/daq/*.la
+%{_defaultdocdir}/%{name}-%{version}/README.FIRST
+%{_defaultdocdir}/%{name}-%{version}/README-DAQ.1st
 
 %post
 /sbin/chkconfig pf_ring on > /dev/null 2>&1
@@ -129,5 +133,6 @@ if [ -f /opt/snf/lib/libsnf.so ];         then cp /opt/snf/lib/libsnf.so /lib64;
 
 * Sat Mar 10 2012 Luca Deri <deri@ntop.org>
 - Original upstream version
+
 
 
